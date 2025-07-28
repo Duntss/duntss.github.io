@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Data Loading ---
     async function loadPost(fileName) {
         try {
-            const response = await fetch(`posts/${fileName}`);
+            const response = await fetch(`./posts/${fileName}`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch ${fileName}`);
             }
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadArticleIndex() {
         try {
-            const response = await fetch('posts/index.json');
+            const response = await fetch('./posts/index.json');
             const articles = await response.json();
             articlesList.innerHTML = '';
             for (const article of articles) {
