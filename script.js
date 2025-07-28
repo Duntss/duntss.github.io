@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const articlesList = document.getElementById('articles-list');
     const postContent = document.getElementById('post-content');
     const backButton = document.getElementById('back-button');
+    const likeButton = document.getElementById('like-button');
+    const likeCount = document.getElementById('like-count');
+
+    let currentPostFile = '';
 
     // --- Theme ---
     function applyTheme() {
@@ -21,9 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Routing ---
     function showPost(fileName) {
+        currentPostFile = fileName;
         listContainer.classList.add('hidden');
         postContainer.classList.remove('hidden');
         loadPost(fileName);
+        updateLikeCount();
     }
 
     function showList() {
@@ -43,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Strip YAML frontmatter
             const content = md.replace(/---(.|\n)*?---/, '');
             postContent.innerHTML = marked.parse(content);
+            hljs.highlightAll();
         } catch (error) {
             console.error(error);
             postContent.innerHTML = `<p>Error loading article. Please try again.</p>`;
@@ -68,6 +75,45 @@ document.addEventListener('DOMContentLoaded', () => {
             articlesList.innerHTML = 'Could not load articles.';
         }
     }
+
+    // --- Liking ---
+    function getLikes(fileName) {
+        return parseInt(localStorage.getItem(`likes_${fileName}`) || '0');
+    }
+
+    function setLikes(fileName, count) {
+        localStorage.setItem(`likes_${fileName}`, count);
+    }
+
+    function updateLikeCount() {
+        const likes = getLikes(currentPostFile);
+        likeCount.textContent = likes;
+        if (hasLiked(currentPostFile)) {
+            likeButton.disabled = true;
+            likeButton.style.cursor = 'not-allowed';
+        } else {
+            likeButton.disabled = false;
+            likeButton.style.cursor = 'pointer';
+        }
+    }
+
+    function hasLiked(fileName) {
+        return localStorage.getItem(`liked_${fileName}`) === 'true';
+    }
+
+    function setLiked(fileName) {
+        localStorage.setItem(`liked_${fileName}`, 'true');
+    }
+
+    likeButton.addEventListener('click', () => {
+        if (!hasLiked(currentPostFile)) {
+            let likes = getLikes(currentPostFile);
+            likes++;
+            setLikes(currentPostFile, likes);
+            setLiked(currentPostFile);
+            updateLikeCount();
+        }
+    });
 
     // --- Event Listeners ---
     backButton.addEventListener('click', showList);

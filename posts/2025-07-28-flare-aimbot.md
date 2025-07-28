@@ -11,7 +11,7 @@
 ### Static Analysis of `aimbot.exe`
 
 Using tools like **Malcat** or **PeStudio**, we can observe that `aimbot.exe` contains **three resources**, each with **high entropy**, which typically indicates **encrypted or packed data**:
-![[Pasted image 20250714174608.png]]
+![](./posts/image_aimbot/Pasted%20image%2020250714174608.png)
 
 ---
 
@@ -22,7 +22,8 @@ Normal use of IDA here cause the .exe is not offuscated, the plugin [Flare-Capa]
 ### AES Decryption Logic
 
 If the target game (e.g., `sauerbraten`) is running, the program creates a folder under `%APPDATA%` and decrypts each resource using **AES** with a hardcoded key:
-![[Pasted image 20250714175035.png]]
+
+![](./posts/image_aimbot/Pasted%20image%2020250714175035.png)
 
 ## DLL Injection Logic
 
@@ -338,10 +339,11 @@ include '../include/win64ax.inc'
 
 ```
 After assembling, open the binary in Malcat or any hex editor, and **set the `.text` section to have write + execute permissions** if you plan to run it.
-![[Pasted image 20250715154700.png]]
+
+![](./posts/image_aimbot/Pasted%20image%2020250715154700.png)
 ### 🔍 String Analysis
 We can already find some interesting strings: :
-![[Pasted image 20250715150153.png]]
+![](./posts/image_aimbot/Pasted%20image%2020250715150153.png)
 For instance:
 
 - `C:\Program Files (x86)\Steam\config\config.vdf` is likely important to the malware.
@@ -458,7 +460,7 @@ The final shellcode uses the same hash as the previous ones. It checks if `aimbo
 %PROGRAMFILES(X86)%\Sauerbraten\packages\base\%s.cfg
 ```
 We also have part of the flag embedded in a string (see the image) :
-![[Pasted image 20250715204405.png]]
+![](./posts/image_aimbot/Pasted%20image%2020250715204405.png)
 ### Shellcode Logic
 
 The calculation in the shellcode is :
@@ -551,4 +553,4 @@ if __name__ == "__main__":
 
     main()
 ```
-![[Pasted image 20250715210638.png]]
+![](./posts/image_aimbot/Pasted%20image%2020250715210638.png)

@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duntss Blog</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -19,7 +21,13 @@
             <div id="articles-list"></div>
         </div>
         <div id="post-container" class="hidden">
-            <button id="back-button">&larr; Retour</button>
+            <div class="post-header">
+                <button id="back-button">&larr; Retour</button>
+                <div class="like-section">
+                    <button id="like-button">❤️</button>
+                    <span id="like-count">0</span>
+                </div>
+            </div>
             <article id="post-content"></article>
         </div>
     </main>
