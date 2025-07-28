@@ -320,7 +320,7 @@ BlobRunner is great, but I want to show a small trick for shellcode reversing, s
 
 ---
 
-### 📦 Example: Wrapping Shellcode with FASM
+### Example: Wrapping Shellcode with FASM
 
 Here's a basic example that works with any decrypted shellcode:
 
@@ -349,7 +349,7 @@ For instance:
 - `C:\Program Files (x86)\Steam\config\config.vdf` is likely important to the malware.
 - `"the decryption of this blob was successful"` appears in every decrypted shellcode and can act as an indicator of success.
 
-### 🧠 API Hashing Logic
+### API Hashing Logic
 
 In the shellcode, there's a function that resolves API calls using **hashing**, which simulates a `ROR13` using `SHR` and `SHL`:
 ```nasm
@@ -363,7 +363,7 @@ loc_401896:                             ; CODE XREF: sub_40183D+46↑j
 You _could_ reimplement this hashing algorithm manually to reverse all function calls — but this technique is widely used, and tools like **hashdb** can resolve them much faster.  
 For a great in-depth explanation of HashDB, check out [this video](https://www.youtube.com/watch?v=3FPY4cLaELU).
 
-### ✅ Resolved API Calls (via HashDB)
+### Resolved API Calls (via HashDB)
 ```less
 .text:00000000004018AC dword_4018AC    dd KERNEL32_DLL         ; DATA XREF: start+5D↑o
 .text:00000000004018B0 ptr_CloseHandle dd CloseHandle_0
@@ -378,7 +378,7 @@ For a great in-depth explanation of HashDB, check out [this video](https://www.y
 .text:00000000004018D4 ptr_RtlFreeHeap dd RtlFreeHeap_0
 ```
 
-## 🔐 RC4 Decryption in the Second Shellcode
+## RC4 Decryption in the Second Shellcode
 
 The shellcode uses **RC4** to decrypt the next stage, using a key based on the **first 16 bytes of a specific file** accessed earlier:
 ```
@@ -396,7 +396,7 @@ Now we can write a quick script to decrypt the second stage at `payload_401957`.
 
 ---
 
-### 🐍 RC4 Decryption Script
+### RC4 Decryption Script
 ```python
 from pathlib import Path
 from Crypto.Cipher import ARC4  # PyCryptodome
@@ -411,7 +411,7 @@ OUTPUT_FILE = Path("decrypted_aimbot_dll_second_stage_shellcode_size_15129.bin")
 try:
     data = INPUT_FILE.read_bytes()
 except FileNotFoundError:
-    print(f"❌ {INPUT_FILE} not found")
+    print(f"{INPUT_FILE} not found")
     sys.exit(1)
 
 # --- RC4 ---
@@ -420,7 +420,7 @@ decrypted = cipher.decrypt(data)
 
 # --- Save ---
 OUTPUT_FILE.write_bytes(decrypted)
-print(f"✅ Finished stored as : {OUTPUT_FILE}")
+print(f"Finished stored as : {OUTPUT_FILE}")
 ```
 
 At this point, the challenge starts to drift from real-world malware behavior.  
@@ -429,21 +429,21 @@ That said, this design serves the purpose of the challenge and demonstrates laye
 
 ### Decrypt and Repeat. Brief Summary of shellcode 2 to 4
 
-#### 🥈 Second Stage
+#### Second Stage
 - **Key source:** First 16 bytes of  
   `%APPDATA%\Discord\Network\Cookies`
 - **Key value:** `"SQLite format 3\x00"`
 
 ---
 
-#### 🥉 Third Stage
+#### Third Stage
 - **Key source:** `recentWalletFiles` entry in  
   `%APPDATA%\Sparrow\config`
 - **Key value:** `"recentWalletFiles"` (17 bytes)
 
 ---
 
-#### 🧩 Fourth Stage
+#### Fourth Stage
 - **Key source:** C2 server response
 - **Key derivation:**
   - Get `Content-Length` via `HttpQueryInfoA`
