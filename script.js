@@ -34,8 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Data Loading ---
     async function loadPost(fileName) {
+        const url = `posts/${fileName}`;
+        console.log(`Fetching post from: ${url}`);
         try {
-            const response = await fetch(`posts/${fileName}`);
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`Failed to fetch ${fileName}`);
             }
