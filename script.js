@@ -71,17 +71,31 @@ searchInput.addEventListener('input', () => renderArticles());
 
 // 📄 Charge le contenu Markdown dynamiquement
 function loadMarkdown(file) {
+  console.log(`Loading markdown for: ${file}`);
   fetch(`posts/${file}`)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.text();
+    })
     .then(md => {
+      console.log("--- Original Markdown ---");
+      console.log(md);
       // Supprime le frontmatter YAML s'il existe
       const content = md.replace(/---(.|\n)*?---/, '');
+      console.log("--- Content after frontmatter removal ---");
+      console.log(content);
+      const html = marked.parse(content);
+      console.log("--- Parsed HTML ---");
+      console.log(html);
       const el = document.createElement('article');
-      el.innerHTML = marked.parse(content);
+      el.innerHTML = html;
       articlesContainer.innerHTML = '';
       articlesContainer.appendChild(el);
     })
-    .catch(() => {
+    .catch((e) => {
+      console.error(e);
       articlesContainer.innerHTML = `<p>⚠️ Failed to load ${file}</p>`;
     });
 }
