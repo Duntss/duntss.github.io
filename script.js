@@ -74,8 +74,10 @@ function loadMarkdown(file) {
   fetch(`posts/${file}`)
     .then(res => res.text())
     .then(md => {
+      // Supprime le frontmatter YAML s'il existe
+      const content = md.replace(/---(.|\n)*?---/, '');
       const el = document.createElement('article');
-      el.innerHTML = marked.parse(md);
+      el.innerHTML = marked.parse(content);
       articlesContainer.innerHTML = '';
       articlesContainer.appendChild(el);
     })
