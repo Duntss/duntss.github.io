@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = md.replace(/---(.|\n)*?---/, '');
             postContent.innerHTML = marked.parse(content);
         } catch (error) {
-            console.error(error);
+            console.error('Error loading post:', error);
             postContent.innerHTML = `<p>Error loading article. Please try again.</p>`;
         }
     }
