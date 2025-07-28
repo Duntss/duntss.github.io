@@ -341,7 +341,7 @@ include '../include/win64ax.inc'
 After assembling, open the binary in Malcat or any hex editor, and **set the `.text` section to have write + execute permissions** if you plan to run it.
 
 ![](./posts/image_aimbot/Pasted%20image%2020250715154700.png)
-### 🔍 String Analysis
+### String Analysis
 We can already find some interesting strings: :
 ![](./posts/image_aimbot/Pasted%20image%2020250715150153.png)
 For instance:
