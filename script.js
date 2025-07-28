@@ -71,7 +71,6 @@ searchInput.addEventListener('input', () => renderArticles());
 
 // 📄 Charge le contenu Markdown dynamiquement
 function loadMarkdown(file) {
-  console.log(`Loading markdown for: ${file}`);
   fetch(`posts/${file}`)
     .then(res => {
       if (!res.ok) {
@@ -80,22 +79,14 @@ function loadMarkdown(file) {
       return res.text();
     })
     .then(md => {
-      console.log("--- Original Markdown ---");
-      console.log(md);
       // Supprime le frontmatter YAML s'il existe
       const content = md.replace(/---(.|\n)*?---/, '');
-      console.log("--- Content after frontmatter removal ---");
-      console.log(content);
-      const html = marked.parse(content);
-      console.log("--- Parsed HTML ---");
-      console.log(html);
       const el = document.createElement('article');
-      el.innerHTML = html;
+      el.innerHTML = marked.parse(content);
       articlesContainer.innerHTML = '';
       articlesContainer.appendChild(el);
     })
-    .catch((e) => {
-      console.error(e);
+    .catch(() => {
       articlesContainer.innerHTML = `<p>⚠️ Failed to load ${file}</p>`;
     });
 }

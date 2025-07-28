@@ -2,7 +2,7 @@
   {
     "title": "Flare Aimbot",
     "description": "Reverse engineering analysis of a fake Sauerbraten aimbot containing hidden malware and shellcode stages.",
-    "file": "2025-07-28-flare-aimbot.md",
+    "file": "2025-07-28-flare-Aimbot.md",
     "tags": ["flare-on", "malware", "shellcode", "aes", "xor", "rc4", "c2"]
   }
 ]
