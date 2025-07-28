@@ -1,3 +1,8 @@
+---
+layout: post
+title: "Flare-10 Aimbot"
+---
+
 ### Files
 
 | Name       | SHA265                                                           |
