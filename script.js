@@ -34,10 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Data Loading ---
     async function loadPost(fileName) {
-        const url = `posts/${fileName}`;
-        console.log(`Fetching post from: ${url}`);
         try {
-            const response = await fetch(url);
+            const response = await fetch(`posts/${fileName}`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch ${fileName}`);
             }
@@ -46,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = md.replace(/---(.|\n)*?---/, '');
             postContent.innerHTML = marked.parse(content);
         } catch (error) {
-            console.error('Error loading post:', error);
+            console.error(error);
             postContent.innerHTML = `<p>Error loading article. Please try again.</p>`;
         }
     }
