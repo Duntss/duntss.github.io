@@ -1,105 +1,89 @@
-const themeToggle = document.getElementById('themeToggle');
-const searchInput = document.getElementById('search');
-const tagsContainer = document.getElementById('tags');
-const articlesContainer = document.getElementById('articles');
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('themeToggle');
+    const listContainer = document.getElementById('list-container');
+    const postContainer = document.getElementById('post-container');
+    const articlesList = document.getElementById('articles-list');
+    const postContent = document.getElementById('post-content');
+    const backButton = document.getElementById('back-button');
 
-let articles = [];
+    // --- Theme ---
+    function applyTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
 
-// 🌙 Thème clair/sombre
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-}
-
-function applyThemeFromStorage() {
-  const saved = localStorage.getItem('theme');
-  if (saved) {
-    document.documentElement.setAttribute('data-theme', saved);
-  }
-}
-
-themeToggle.addEventListener('click', toggleTheme);
-applyThemeFromStorage();
-
-// 📦 Récupère les métadonnées des articles
-function fetchArticles() {
-  fetch('posts/index.json')
-    .then(res => res.json())
-    .then(data => {
-      articles = data;
-      renderTags();
-      renderArticles();
-      handleInitialHash(); // charge article direct si hash présent
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
     });
-}
 
-// 🏷️ Génère les tags
-function renderTags() {
-  const allTags = new Set();
-  articles.forEach(a => a.tags.forEach(t => allTags.add(t)));
-  tagsContainer.innerHTML = '';
-  allTags.forEach(tag => {
-    const btn = document.createElement('button');
-    btn.textContent = tag;
-    btn.onclick = () => renderArticles(tag);
-    tagsContainer.appendChild(btn);
-  });
-}
+    // --- Routing ---
+    function showPost(fileName) {
+        listContainer.classList.add('hidden');
+        postContainer.classList.remove('hidden');
+        loadPost(fileName);
+    }
 
-// 📝 Affiche les articles (filtres recherche + tags)
-function renderArticles(filterTag = '') {
-  const query = searchInput.value.toLowerCase();
-  articlesContainer.innerHTML = '';
-  articles
-    .filter(a =>
-      (!filterTag || a.tags.includes(filterTag)) &&
-      (a.title.toLowerCase().includes(query) || a.description.toLowerCase().includes(query))
-    )
-    .forEach(article => {
-      const el = document.createElement('article');
-      el.innerHTML = `
-        <h2><a href="#${article.file}">${article.title}</a></h2>
-        <p>${article.description}</p>
-      `;
-      articlesContainer.appendChild(el);
-    });
-}
+    function showList() {
+        listContainer.classList.remove('hidden');
+        postContainer.classList.add('hidden');
+        location.hash = '';
+    }
 
-searchInput.addEventListener('input', () => renderArticles());
+    // --- Data Loading ---
+    async function loadPost(fileName) {
+        try {
+            const response = await fetch(`posts/${fileName}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch ${fileName}`);
+            }
+            const md = await response.text();
+            // Strip YAML frontmatter
+            const content = md.replace(/---(.|\n)*?---/, '');
+            postContent.innerHTML = marked.parse(content);
+        } catch (error) {
+            console.error(error);
+            postContent.innerHTML = `<p>Error loading article. Please try again.</p>`;
+        }
+    }
 
-// 📄 Charge le contenu Markdown dynamiquement
-function loadMarkdown(file) {
-  fetch(`posts/${file}`)
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      return res.text();
-    })
-    .then(md => {
-      // Supprime le frontmatter YAML s'il existe
-      const content = md.replace(/---(.|\n)*?---/, '');
-      const el = document.createElement('article');
-      el.innerHTML = marked.parse(content);
-      articlesContainer.innerHTML = '';
-      articlesContainer.appendChild(el);
-    })
-    .catch(() => {
-      articlesContainer.innerHTML = `<p>⚠️ Failed to load ${file}</p>`;
-    });
-}
+    async function loadArticleIndex() {
+        try {
+            const response = await fetch('posts/index.json');
+            const articles = await response.json();
+            articlesList.innerHTML = '';
+            for (const article of articles) {
+                const link = document.createElement('a');
+                link.href = `#${article.file}`;
+                link.innerHTML = `
+                    <h3>${article.title}</h3>
+                    <p>${article.description}</p>
+                `;
+                articlesList.appendChild(link);
+            }
+        } catch (error) {
+            console.error(error);
+            articlesList.innerHTML = 'Could not load articles.';
+        }
+    }
 
-// 🔗 Gère les liens dans l'URL (hash)
-function handleInitialHash() {
-  const hash = location.hash.slice(1);
-  if (hash.endsWith('.md')) {
-    loadMarkdown(hash);
-  }
-}
+    // --- Event Listeners ---
+    backButton.addEventListener('click', showList);
+    window.addEventListener('hashchange', handleHashChange);
 
-window.addEventListener('hashchange', handleInitialHash);
+    // --- Initialization ---
+    function handleHashChange() {
+        const hash = location.hash.slice(1);
+        if (hash.endsWith('.md')) {
+            showPost(hash);
+        } else {
+            showList();
+        }
+    }
 
-// 🚀 Démarrage
-fetchArticles();
+    applyTheme();
+    loadArticleIndex();
+    handleHashChange(); // Check hash on initial load
+});

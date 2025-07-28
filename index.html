@@ -1,27 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="fr" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Duntss Blog</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script defer src="script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duntss Blog</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
-  <header>
-    <h1>Duntss Reverse Engineering Blog</h1>
-    <div class="controls">
-      <input type="text" id="search" placeholder="Search articles...">
-      <button id="themeToggle">🌓</button>
-    </div>
-  </header>
-
-  <nav id="tags"></nav>
-  <main id="articles"></main>
-
-  <footer>
-    <p>Powered by GitHub Pages · Reverse Engineering Notes</p>
-  </footer>
+    <header>
+        <h1>Duntss Reverse Engineering Blog</h1>
+        <button id="themeToggle">🌓</button>
+    </header>
+    <main>
+        <div id="list-container">
+            <h2>Articles</h2>
+            <div id="articles-list"></div>
+        </div>
+        <div id="post-container" class="hidden">
+            <button id="back-button">&larr; Retour</button>
+            <article id="post-content"></article>
+        </div>
+    </main>
+    <footer>
+        <p>Powered by GitHub Pages</p>
+    </footer>
 </body>
 </html>

@@ -1,84 +1,127 @@
 :root {
-  --bg: #121212;
-  --fg: #ffffff;
-  --accent: #00ffc3;
-  --secondary-bg: #1e1e1e;
+    --bg: #1a1a1a;
+    --fg: #e0e0e0;
+    --header-bg: #242424;
+    --accent: #00aaff;
+    --border-color: #333;
 }
 
 [data-theme="light"] {
-  --bg: #ffffff;
-  --fg: #000000;
-  --accent: #0077ff;
-  --secondary-bg: #f0f0f0;
+    --bg: #ffffff;
+    --fg: #222222;
+    --header-bg: #f0f0f0;
+    --accent: #0077cc;
+    --border-color: #ddd;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background-color: var(--bg);
-  color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+}
+
+header, footer {
+    background-color: var(--header-bg);
+    text-align: center;
+    padding: 1rem;
 }
 
 header {
-  padding: 1rem;
-  background-color: var(--secondary-bg);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.controls {
-  display: flex;
-  gap: 0.5rem;
+h1 {
+    font-size: 1.5rem;
+    margin: 0;
 }
 
-#search {
-  padding: 0.5rem;
-  border: 1px solid var(--accent);
-  border-radius: 5px;
+main {
+    padding: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#articles-list a {
+    display: block;
+    padding: 1rem;
+    background-color: var(--header-bg);
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--fg);
+    transition: background-color 0.2s;
+}
+
+#articles-list a:hover {
+    background-color: var(--border-color);
+}
+
+#articles-list h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--accent);
+}
+
+.hidden {
+    display: none;
+}
+
+#back-button {
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--accent);
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 #themeToggle {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: var(--accent);
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
 }
 
-nav#tags {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  padding: 1rem;
+/* Styles for markdown content */
+#post-content h1, #post-content h2, #post-content h3 {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.3em;
 }
 
-nav#tags button {
-  background-color: var(--accent);
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  cursor: pointer;
-  color: #000;
-  font-weight: bold;
+#post-content code {
+    background-color: var(--header-bg);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
 }
 
-main#articles {
-  padding: 1rem;
-  max-width: 800px;
-  margin: auto;
+#post-content pre {
+    background-color: var(--header-bg);
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
 }
 
-article {
-  margin-bottom: 2rem;
-  border-bottom: 1px solid var(--secondary-bg);
-  padding-bottom: 1rem;
+#post-content blockquote {
+    border-left: 4px solid var(--border-color);
+    padding-left: 1rem;
+    color: #aaa;
+    margin-left: 0;
 }
 
-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: var(--secondary-bg);
-  margin-top: 2rem;
+#post-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#post-content th, #post-content td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+}
+
+#post-content th {
+    background-color: var(--header-bg);
 }
