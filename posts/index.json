@@ -4,11 +4,11 @@
     "description": "Reverse engineering analysis of a fake Sauerbraten aimbot containing hidden malware and shellcode stages.",
     "file": "2025-07-28-flare-aimbot.md",
     "tags": ["flare-on", "malware", "shellcode", "aes", "xor", "rc4", "c2"]
-  }
+  },
   {
-    "title": "Hybryd Petya Analysis",
-    "description": "Reverse engineering analysis of the malware Hybryd Petya.",
-    "file": "2025-11-22-hybrydPetya.md",
+    "title": "Hybrid Petya Analysis",
+    "description": "Reverse engineering analysis of the malware Hybrid Petya.",
+    "file": "2025-11-22-hybridPetya.md",
     "tags": ["petya", "malware", "efi", "aes", "dll", "c"]
   }
 ]
