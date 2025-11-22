@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Read(//c/Users/dariu/Documents/2600/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

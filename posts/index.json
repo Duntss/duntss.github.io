@@ -5,4 +5,10 @@
     "file": "2025-07-28-flare-aimbot.md",
     "tags": ["flare-on", "malware", "shellcode", "aes", "xor", "rc4", "c2"]
   }
+  {
+    "title": "Hybryd Petya Analysis",
+    "description": "Reverse engineering analysis of the malware Hybryd Petya.",
+    "file": "2025-11-22-hybrydPetya.md",
+    "tags": ["petya", "malware", "efi", "aes", "dll", "c"]
+  }
 ]
