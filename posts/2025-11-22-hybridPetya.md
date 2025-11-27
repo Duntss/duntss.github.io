@@ -1,6 +1,10 @@
 # HybridPetya / NotPetya Deep Dive: Reverse-Engineering & Bootkit Analysis
 
-**SHA-256:** `ccdad8f0f97fc54d7d568414364887dcbe57299257305994ea187c43a7c040a8`
+My IDB (Ida Pro Database) 9.2 are available on my github !
+
+**SHA-256:** HybridPetya.exe `ccdad8f0f97fc54d7d568414364887dcbe57299257305994ea187c43a7c040a8` [Malshare link](https://malshare.com/sample.php?action=detail&hash=ccdad8f0f97fc54d7d568414364887dcbe57299257305994ea187c43a7c040a8) [IDB avalaible here](https://github.com/Duntss/duntss.github.io/blob/main/posts/ccdad8f0f97fc54d7d568414364887dcbe57299257305994ea187c43a7c040a8.bin.i64)
+**SHA-256:** DLL extracted : `23fba6c00f0aa812901cd7076cae63270ef34a077154b008a5beef755b1d7c7a` [Malshare link](https://malshare.com/sample.php?action=detail&hash=23fba6c00f0aa812901cd7076cae63270ef34a077154b008a5beef755b1d7c7a) [IDB avalaible here](https://github.com/Duntss/duntss.github.io/blob/main/posts/HybridPetyadump_pe.bin.i64)
+**SHA-256:** EFI extracted : `97bc6da2c387b4b0d6f1f08f4eeeec65359bb66cb23c15e805f68c89493bf1d4` [Malshare link](https://malshare.com/sample.php?action=detail&hash=97bc6da2c387b4b0d6f1f08f4eeeec65359bb66cb23c15e805f68c89493bf1d4) [IDB avalaible here](https://github.com/Duntss/duntss.github.io/blob/main/posts/bootkit_uefi.efi.i64)
 
 This article is a full deep-dive reverse‑engineering walkthrough of the HybridPetya malware sample I analyzed.  
 It is inspired by the relaxed, technical blog style of duntss — not a formal CERT report, but still accurate and rigorous.
@@ -15,7 +19,6 @@ Here's what I uncovered when dissecting HybridPetya, a NotPetya-like malware tha
 - The components are clearly structured and functional, showing competent engineering but relying entirely on established techniques rather than novel innovation.
 
 While none of these techniques are particularly sophisticated by today's standards — AES encryption, reflective loading, and custom loaders have been documented and reused for years — the malware's real strength lies in its operational design: the strategic combination of simple components to achieve maximum destructive impact.
----
 
 ## 2. Introduction
 
