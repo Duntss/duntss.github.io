@@ -105,6 +105,11 @@ body {
     gap: 0.75rem;
 }
 
+.brand-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .brand-icon {
     font-size: 1.75rem;
     filter: drop-shadow(0 0 8px var(--accent-primary));

@@ -158,8 +158,10 @@ const ContentLoader = {
             }
 
             const articles = await response.json();
-            AppState.articles = articles;
-            this.renderArticlesList(articles);
+            // Reverse the array to show newest articles first
+            const articlesReversed = articles.reverse();
+            AppState.articles = articlesReversed;
+            this.renderArticlesList(articlesReversed);
         } catch (error) {
             console.error('Error loading articles index:', error);
             DOM.articlesList.innerHTML = `
