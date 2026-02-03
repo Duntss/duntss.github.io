@@ -16,5 +16,11 @@
     "description": "Explanation of a Linux seccomp notification injection technique.",
     "file": "2025-12-19-Injection-Seccom-Notification.md",
     "tags": ["linux", "elf", "PE Injection", "short", "so", "seccomp"]
+  },
+  {
+    "title": "Fixing IDA Stack Frames in LockBit 4.0",
+    "description": "Why IDA shows STACK[offset] in LockBit 4.0 and how to fix stack deltas with an automated IDAPython workflow.",
+    "file": "2026-02-03-fix-stack-frame-ida-lockbit.md",
+    "tags": ["lockbit", "ransomware", "ida", "hex-rays", "idapython", "stack-frame", "reverse-engineering"]
   }
 ]
