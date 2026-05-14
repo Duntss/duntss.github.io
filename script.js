@@ -88,6 +88,45 @@ const Router = {
 };
 
 // ===========================================
+// GitHub Projects Loader
+// ===========================================
+const GitHubLoader = {
+    GITHUB_USER: 'Duntss',
+    MAX_REPOS: 6,
+
+    async fetchRepos() {
+        try {
+            const res = await fetch(
+                `https://api.github.com/users/${this.GITHUB_USER}/repos?sort=pushed&direction=desc&per_page=${this.MAX_REPOS}&type=public`
+            );
+            if (!res.ok) return [];
+            const repos = await res.json();
+            return repos.filter(r => !r.fork && r.stargazers_count >= 3);
+        } catch {
+            return [];
+        }
+    },
+
+    formatDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    },
+
+    toFeedItem(repo) {
+        return {
+            type: 'github',
+            title: repo.name,
+            description: repo.description || 'No description',
+            date: repo.pushed_at,
+            url: repo.html_url,
+            language: repo.language,
+            stars: repo.stargazers_count,
+            forks: repo.forks_count
+        };
+    }
+};
+
+// ===========================================
 // Content Loader
 // ===========================================
 const ContentLoader = {
@@ -152,47 +191,100 @@ const ContentLoader = {
 
     async loadArticleIndex() {
         try {
-            const response = await fetch('./posts/index.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            const [indexRes, githubRepos] = await Promise.all([
+                fetch('./posts/index.json'),
+                GitHubLoader.fetchRepos()
+            ]);
 
-            const articles = await response.json();
-            // Reverse the array to show newest articles first
-            const articlesReversed = articles.reverse();
-            AppState.articles = articlesReversed;
-            this.renderArticlesList(articlesReversed);
+            if (!indexRes.ok) throw new Error(`HTTP error! status: ${indexRes.status}`);
+            const articles = await indexRes.json();
+            AppState.articles = articles;
+
+            const articleItems = articles.map(a => {
+                const dateMatch = a.file.match(/^(\d{4}-\d{2}-\d{2})/);
+                return {
+                    type: 'article',
+                    title: a.title,
+                    description: a.description,
+                    date: a.date || (dateMatch ? dateMatch[1] : null),
+                    file: a.file,
+                    tags: a.tags || []
+                };
+            });
+
+            const githubItems = githubRepos.map(r => GitHubLoader.toFeedItem(r));
+
+            const feed = [...articleItems, ...githubItems].sort((a, b) => {
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            this.renderFeed(feed);
         } catch (error) {
-            console.error('Error loading articles index:', error);
+            console.error('Error loading feed:', error);
             DOM.articlesList.innerHTML = `
                 <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
-                    <p>Unable to load articles. Please try again later.</p>
+                    <p>Unable to load content. Please try again later.</p>
                 </div>
             `;
         }
     },
 
-    renderArticlesList(articles) {
+    renderFeed(items) {
         DOM.articlesList.innerHTML = '';
 
-        articles.forEach(article => {
-            const card = document.createElement('a');
-            card.href = `#${article.file}`;
-            card.className = 'article-card';
+        items.forEach(item => {
+            if (item.type === 'article') {
+                const card = document.createElement('a');
+                card.href = `#${item.file}`;
+                card.className = 'article-card';
 
-            const tagsHTML = article.tags && article.tags.length > 0
-                ? `<div class="article-tags">
-                     ${article.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                   </div>`
-                : '';
+                const tagsHTML = item.tags.length > 0
+                    ? `<div class="article-tags">${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
+                    : '';
 
-            card.innerHTML = `
-                <h3>${article.title}</h3>
-                <p>${article.description}</p>
-                ${tagsHTML}
-            `;
+                const dateHTML = item.date
+                    ? `<span class="card-date">${GitHubLoader.formatDate(item.date)}</span>`
+                    : '';
 
-            DOM.articlesList.appendChild(card);
+                card.innerHTML = `
+                    <div class="card-type-badge badge-article">Article</div>
+                    <h3>${item.title}</h3>
+                    <p>${item.description}</p>
+                    ${tagsHTML}
+                    ${dateHTML}
+                `;
+                DOM.articlesList.appendChild(card);
+            } else {
+                const card = document.createElement('a');
+                card.href = item.url;
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
+                card.className = 'article-card github-card';
+
+                const langHTML = item.language
+                    ? `<span class="tag lang-tag">${item.language}</span>`
+                    : '';
+
+                card.innerHTML = `
+                    <div class="card-type-badge badge-github">
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                        GitHub
+                    </div>
+                    <h3>${item.title}</h3>
+                    <p>${item.description}</p>
+                    <div class="github-card-footer">
+                        <div class="article-tags">${langHTML}</div>
+                        <div class="github-stats">
+                            <span title="Stars">★ ${item.stars}</span>
+                            <span title="Forks">⑂ ${item.forks}</span>
+                            <span class="card-date">${GitHubLoader.formatDate(item.date)}</span>
+                        </div>
+                    </div>
+                `;
+                DOM.articlesList.appendChild(card);
+            }
         });
     }
 };
