@@ -7,27 +7,27 @@ My IDB (Ida Pro Database) 9.2 are available on my github !
 **SHA-256:** EFI extracted : `97bc6da2c387b4b0d6f1f08f4eeeec65359bb66cb23c15e805f68c89493bf1d4` [Malshare link](https://malshare.com/sample.php?action=detail&hash=97bc6da2c387b4b0d6f1f08f4eeeec65359bb66cb23c15e805f68c89493bf1d4) [IDB avalaible here](https://github.com/Duntss/duntss.github.io/blob/main/posts/bootkit_uefi.efi.i64)
 
 This article is a full deep-dive reverse‑engineering walkthrough of the HybridPetya malware sample I analyzed.  
-It is inspired by the relaxed, technical blog style of duntss — not a formal CERT report, but still accurate and rigorous.
+It is inspired by the relaxed, technical blog style of duntss - not a formal CERT report, but still accurate and rigorous.
 
 ---
 
 ## 1. Executive Summary
 Here's what I uncovered when dissecting HybridPetya, a NotPetya-like malware that demonstrates straightforward but effective design choices:
 - The EXE acts as a loader: it decrypts an embedded DLL (AES-256-CBC) in memory using standard cryptographic routines.
-- That DLL is then loaded reflectively (no LoadLibrary) via a custom loader — a well-known technique in modern malware.
+- That DLL is then loaded reflectively (no LoadLibrary) via a custom loader - a well-known technique in modern malware.
 - The internal payload gathers entropy, then installs a bootkit (either UEFI or MBR) depending on the system, and forces a crash/reboot.
 - The components are clearly structured and functional, showing competent engineering but relying entirely on established techniques rather than novel innovation.
 
-While none of these techniques are particularly sophisticated by today's standards — AES encryption, reflective loading, and custom loaders have been documented and reused for years — the malware's real strength lies in its operational design: the strategic combination of simple components to achieve maximum destructive impact.
+While none of these techniques are particularly sophisticated by today's standards - AES encryption, reflective loading, and custom loaders have been documented and reused for years - the malware's real strength lies in its operational design: the strategic combination of simple components to achieve maximum destructive impact.
 
 ## 2. Introduction
 
 ### Why HybridPetya Is Interesting
 Petya was originally a MBR-targeting ransomware. NotPetya evolved (or devolved) into a destructive wiper. HybridPetya sits somewhere between: it has ransomware-style persistence, but also the destructive / persistent traits of a wiper + bootkit.
 
-The "Hybrid" part of the name — is due to a mixes Petya's boot-hijacking persistence with NotPetya's destructive intent, but unlike NotPetya (which was purely a wiper disguised as ransomware), HybridPetya actually implements both behaviors depending on configuration or target context.
+The "Hybrid" part of the name - is due to a mixes Petya's boot-hijacking persistence with NotPetya's destructive intent, but unlike NotPetya (which was purely a wiper disguised as ransomware), HybridPetya actually implements both behaviors depending on configuration or target context.
 
-In other words, it's not just a wiper pretending to be ransomware — it's genuinely capable of acting as either, or both.
+In other words, it's not just a wiper pretending to be ransomware - it's genuinely capable of acting as either, or both.
 
 ### Goals of This Analysis
 
@@ -48,7 +48,7 @@ My mission in this blog post: walk you through exactly how HybridPetya works, st
 
 ### Imports and Entry
 
-Opening the EXE in IDA, you only see one import — **kernel32.dll**. That’s weird for a file of this size, which suggests the real logic is hidden.
+Opening the EXE in IDA, you only see one import - **kernel32.dll**. That’s weird for a file of this size, which suggests the real logic is hidden.
 
 ### Encrypted Embedded DLL & Custom GetProcAddress
 
@@ -84,7 +84,7 @@ Some light obfuscation: e.g., byte_ECF14F[i] ^= 15169 % i
 
 So even though the import table is minimal (just kernel32), all the heavy lifting is done after decryption in memory.
 
-## 4. Stage 1 — mw_main(): AES Decryption + Reflective Load
+## 4. Stage 1 - mw_main(): AES Decryption + Reflective Load
 
 This is where everything starts:
 
@@ -146,7 +146,7 @@ Takeaways:
 - Decrypts ~402,944 bytes (≈ 393 KB) in memory
 - Makes that memory page RWX
 - Calls a function from the decrypted PE: likely its entry point
-- Passes a “mode = 6” flag — probably controlling infection logic (MBR / bootkit)
+- Passes a “mode = 6” flag - probably controlling infection logic (MBR / bootkit)
 
 ### Dumping the decrypted DLL
 
@@ -169,7 +169,7 @@ If you don’t have IDA Python, you can set a breakpoint after `VirtualProtect` 
 
 ## 5. Stage 2 – Reflective Loader
 
-Once the DLL is decrypted, the Reflective Loader takes over. But this is not a toy loader — it’s a full-fledged PE loader written from scratch.
+Once the DLL is decrypted, the Reflective Loader takes over. But this is not a toy loader - it’s a full-fledged PE loader written from scratch.
 
 ### Locating the module base
 
@@ -229,7 +229,7 @@ v59(v39, 1, 0);
 ## 6. Stage 3 – DllMain: Entropy Collection & Bootkit Injection
 Once loaded, the DLL’s ``DllMain`` runs a bunch of routines:
 - It calls a function like ``collect_entropy_sub_1001F640``, which uses ``CryptGenRandom``, Intel RDRAND, memory stats (heap, modules, threads), SMB stats, process / thread information, etc. The goal is to generate a unique key per victim.
-- It calls ``injection_bootkit()``, which is responsible for persistence via bootkit — either UEFI or MBR.
+- It calls ``injection_bootkit()``, which is responsible for persistence via bootkit - either UEFI or MBR.
 
 ## 7. Bootkit Infection: UEFI & BIOS Legacy
 
@@ -243,7 +243,7 @@ Once loaded, the DLL’s ``DllMain`` runs a bunch of routines:
 
 - Determines system drive via GetSystemDirectoryA(...)
 - Uses DeviceIoControl(IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS) to get the physical drive / partition
-- Verifies the disk size (if (disk_extent_size / 512 < 40) ExitProcess(0)) — avoids infecting very small volumes
+- Verifies the disk size (if (disk_extent_size / 512 < 40) ExitProcess(0)) - avoids infecting very small volumes
 - Uses IsWow64Process to guess whether the machine is 64-bit → uses that to decide between UEFI or BIOS
 
 Code:
@@ -281,7 +281,7 @@ for (i = 0; i < 0x200; byte_1005EFFF[i] ^= v4)
 for (j = 0; j < 0x2400; byte_1005F1FF[j] ^= v6)
     v6 = 27521 % (int)++j;
 ```
-The XOR key for each byte is 27521 % (current_index + offset) — simple, but effective enough to obfuscate the bootkit in the binary.
+The XOR key for each byte is 27521 % (current_index + offset) - simple, but effective enough to obfuscate the bootkit in the binary.
 
 ---
 
@@ -343,7 +343,7 @@ ProcAddress = GetProcAddress(ModuleHandleA, "NtRaiseHardError");
     6,  // OptionShutdownSystem
     v57);
 ```
-It calls NtRaiseHardError with the shutdown option 6 (forced shutdown), causing a BSOD and a reboot — which triggers execution of the just-installed bootkit.
+It calls NtRaiseHardError with the shutdown option 6 (forced shutdown), causing a BSOD and a reboot - which triggers execution of the just-installed bootkit.
 
 ## 9. Extracting & Decrypting the UEFI Bootkit
 Here’s the IDAPython script I used to grab and decrypt the UEFI bootkit:
@@ -366,7 +366,7 @@ def extract_and_decrypt_bootkit():
         print("Valid PE signature")
     else:
         print(f"Header bytes: {decrypted[0:4].hex().upper()}")
-        print("No MZ signature — possibly raw UEFI code")
+        print("No MZ signature - possibly raw UEFI code")
 
     with open("bootkit_uefi.efi", "wb") as f:
         f.write(decrypted)
@@ -418,7 +418,7 @@ The persistent counter lets the bootkit resume decryption in case of interruptio
 
 ## Conclusion
 
-When you look at HybridPetya with a modern reverse-engineering background, it becomes obvious that the malware is not particularly sophisticated on a technical level. Most of its components — AES encryption in memory, PEB walking, simple ROR-based obfuscation, reflective loading, and a custom loader — are all common techniques that have been widely used for years.
+When you look at HybridPetya with a modern reverse-engineering background, it becomes obvious that the malware is not particularly sophisticated on a technical level. Most of its components - AES encryption in memory, PEB walking, simple ROR-based obfuscation, reflective loading, and a custom loader - are all common techniques that have been widely used for years.
 
 The userland side is straightforward: no advanced evasion, no complex cryptography, no heavily obfuscated logic. Nothing here reaches the level of truly advanced implants.
 

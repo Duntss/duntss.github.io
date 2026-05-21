@@ -84,7 +84,7 @@ Resolve every hash and check with OpenProcess certainly if some program are pres
 The thread starts with multiple anti-debugging checks:
 
 - **Time Bomb techniques** using `GetLocalTime` and `SystemTimeToFileTime`.
-- **Filesystem check**: `CreateDirectoryA` is used to check if `C:\\depot` already exists — if it does, the program assumes it's being debugged.
+- **Filesystem check**: `CreateDirectoryA` is used to check if `C:\\depot` already exists - if it does, the program assumes it's being debugged.
 - **PEB anti-debugging**: Uses `GetCurrentProcess` and `CheckRemoteDebuggerPresent`.
 - **Custom `CheckProcess` function**.
 
@@ -237,7 +237,7 @@ if (response) {
     }
 }
 ```
-At this point, the final part of the XOR string table only decrypts to `"version": "` — so the rest of the string must be brute-forced.
+At this point, the final part of the XOR string table only decrypts to `"version": "` - so the rest of the string must be brute-forced.
 
 We can write a simple brute-force script to recover the complete key.
 ```python
@@ -360,7 +360,7 @@ loc_401896:                             ; CODE XREF: sub_40183D+46↑j
 .text:00000000004018A0                 shl     eax, 13h
 .text:00000000004018A3                 or      r9d, eax
 ```
-You _could_ reimplement this hashing algorithm manually to reverse all function calls — but this technique is widely used, and tools like **hashdb** can resolve them much faster.  
+You _could_ reimplement this hashing algorithm manually to reverse all function calls - but this technique is widely used, and tools like **hashdb** can resolve them much faster.  
 For a great in-depth explanation of HashDB, check out [this video](https://www.youtube.com/watch?v=3FPY4cLaELU).
 
 ### ✅ Resolved API Calls (via HashDB)

@@ -6,7 +6,7 @@
 
 - **SteamService.exe** runs as a Windows service (often as SYSTEM or elevated), making it a high-priority Bug Bounty target.
 - **VDF (Valve Data Format)** is Valve's proprietary text format, similar to JSON, used extensively by Steam for app manifests, configs, and ACLs. It is a key/value format with nested sections delimited by `{` and `}`.
-- VDF is **parsed from untrusted sources** (downloaded files, network data) — an interesting attack surface.
+- VDF is **parsed from untrusted sources** (downloaded files, network data) - an interesting attack surface.
 - Example of a valid VDF file (base corpus):
   ```
   "2380740"
@@ -29,7 +29,7 @@ To compute the RVA: `ida_address - imagebase`. In IDA, the imagebase is visible 
 
 ### 2.2 Identifying the Calling Convention
 
-- IDA identifies `__fastcall`: the first two arguments are passed via `ECX` and `EDX` (x86 32-bit). However, closer analysis confirms the function is `__thiscall` — `this` passes via `ECX`, and additional arguments go on the stack.
+- IDA identifies `__fastcall`: the first two arguments are passed via `ECX` and `EDX` (x86 32-bit). However, closer analysis confirms the function is `__thiscall` - `this` passes via `ECX`, and additional arguments go on the stack.
 - Reconstructed signature: `char __thiscall ParseVDF(void* thisptr, int depth)`
 - The first argument (`ECX`) is a `this` pointer → this is a C++ method (non-virtual but called on an object).
 
@@ -40,16 +40,16 @@ By analysing memory accesses on `thisptr` in IDA (offsets used by the code):
 | Offset | Type      | Role                                          |
 |--------|-----------|-----------------------------------------------|
 | +0x00  | `void**`  | Pointer to the vtable                         |
-| +0x04  | `char*`   | `cursor` — current position in the buffer     |
-| +0x08  | `char*`   | `buf_start` — start of the buffer             |
-| +0x0C  | `char*`   | `buf_end` — end of the buffer                 |
-| +0x10  | `uint32`  | `abort_flag` — abort flag (set by onError)    |
-| +0x14  | `uint32`  | `flag_abort2` — secondary abort flag          |
+| +0x04  | `char*`   | `cursor` - current position in the buffer     |
+| +0x08  | `char*`   | `buf_start` - start of the buffer             |
+| +0x0C  | `char*`   | `buf_end` - end of the buffer                 |
+| +0x10  | `uint32`  | `abort_flag` - abort flag (set by onError)    |
+| +0x14  | `uint32`  | `flag_abort2` - secondary abort flag          |
 | +0x18  | `uint32`  | padding                                       |
 | +0x1C  | `uint32`  | internal field                                |
 | +0x20  | `uint32`  | internal field                                |
 
-Total size: **36 bytes** — verified against IDA's struct view.
+Total size: **36 bytes** - verified against IDA's struct view.
 
 The technique: look at every `mov eax, [ecx+X]` and `mov [ecx+X], eax` instruction to reconstruct the layout. IDA allows creating a struct and applying it directly to make the decompiled pseudocode more readable.
 
@@ -65,7 +65,7 @@ The function uses vtable callbacks to notify a "listener" object of parsing even
 | 3     | +0x0C        | `uint8 __fastcall keyValue(void*, int, char* key, char* val)`  | Key/value pair found      |
 | 4     | +0x10        | `void __fastcall onError(void*, int)`                          | Parse error               |
 
-The callbacks return `uint8` (bool) — if `0`, parsing stops. For the harness, `beginSection`, `endSection`, and `keyValue` always return `1` to let the parser run to completion on any input.
+The callbacks return `uint8` (bool) - if `0`, parsing stops. For the harness, `beginSection`, `endSection`, and `keyValue` always return `1` to let the parser run to completion on any input.
 
 ---
 
@@ -82,14 +82,14 @@ WinAFL (the Windows port of AFL) instruments the binary via DynamoRIO. It expect
 
 ### 3.2 Calling a Function Inside a Third-Party EXE
 
-SteamService.exe is not a DLL — it is an EXE. The module is loaded dynamically and the absolute address is computed from the RVA:
+SteamService.exe is not a DLL - it is an EXE. The module is loaded dynamically and the absolute address is computed from the RVA:
 
 ```cpp
 HMODULE hMod = LoadLibraryA("SteamService.exe");
 pfn = (pfn_ParseVDF)((uintptr_t)hMod + 0x058F70);
 ```
 
-`LoadLibraryA` on an EXE maps the PE into memory and resolves imports — the process is not launched, only the code is loaded. Resolution is done once in `main()` (stored in a global) to avoid any cost per iteration.
+`LoadLibraryA` on an EXE maps the PE into memory and resolves imports - the process is not launched, only the code is loaded. Resolution is done once in `main()` (stored in a global) to avoid any cost per iteration.
 
 ### 3.3 Re-initialising the Parser Object on Each Iteration
 
@@ -119,7 +119,7 @@ This is a standard pattern for text parser harnesses: the AFL input buffer is im
 
 ### 3.5 Crash Handling via SEH
 
-The call is wrapped in `__try/__except` to catch access violations without killing the WinAFL process. WinAFL detects crashes via its own monitoring mechanism — the `__except` block simply prevents an unhandled exception from propagating to the Windows handler.
+The call is wrapped in `__try/__except` to catch access violations without killing the WinAFL process. WinAFL detects crashes via its own monitoring mechanism - the `__except` block simply prevents an unhandled exception from propagating to the Windows handler.
 
 ```cpp
 __try {
@@ -146,8 +146,8 @@ The offset of `fuzz_one_input` in `harness.exe` (`0x1070`) is passed to WinAFL v
 The file `VDF_parser.cpp` contains the IDA pseudocode reconstruction. Notable points:
 
 - **Recursive parsing**: `VDF_parsing(this, depth+1)` on `{` → unbounded depth → risk of stack overflow on deeply nested input.
-- **Pointer navigation**: the parser advances `this->cursor` directly in the buffer — any bounds-checking bug exposes an out-of-buffer read.
-- **Comment handling `//`**: a loop that advances until `\n` — worth checking that end-of-buffer is handled correctly.
+- **Pointer navigation**: the parser advances `this->cursor` directly in the buffer - any bounds-checking bug exposes an out-of-buffer read.
+- **Comment handling `//`**: a loop that advances until `\n` - worth checking that end-of-buffer is handled correctly.
 - **Abort flag**: `this->abort_flag` checked at the start of each loop iteration → callbacks can trigger a clean stop.
 
 ---
@@ -174,18 +174,18 @@ afl-fuzz.exe
 
 ---
 
-## 6. Debugging Stability — From 40% to 99.29%
+## 6. Debugging Stability - From 40% to 99.29%
 
 ### 6.1 What Is Stability in WinAFL?
 
 `stability` in `fuzzer_stats` measures the **reproducibility of the coverage bitmap**: for the same input, is the observed execution path identical across iterations?
 
-- `100%` — perfectly deterministic: every run covers exactly the same blocks.
-- `< 80%` — the fuzzer detects too many phantom "new paths" → it spends time saving them instead of mutating inputs; throughput collapses and the corpus bloats.
+- `100%` - perfectly deterministic: every run covers exactly the same blocks.
+- `< 80%` - the fuzzer detects too many phantom "new paths" → it spends time saving them instead of mutating inputs; throughput collapses and the corpus bloats.
 
 The internal calculation: WinAFL replays the same input twice and XORs the bitmaps. If bits differ, the iteration is flagged as unstable.
 
-A harness at 40% stability is not really fuzzing — it is spinning in place. Before looking for bugs, pushing stability above 95% is the first priority.
+A harness at 40% stability is not really fuzzing - it is spinning in place. Before looking for bugs, pushing stability above 95% is the first priority.
 
 ### 6.2 Diagnosis: Sources of Non-Determinism
 
@@ -217,7 +217,7 @@ int fuzz_one_input(const uint8_t* data, size_t size) {
 }
 ```
 
-WinAFL instruments `fuzz_one_input` **after** `main()` returns. If `LoadLibraryA` is called inside `fuzz_one_input` during the **first instrumented iteration**, SteamService.exe's initialisation code (TLS callbacks, CRT global init, socket init, etc.) executes once and covers blocks that no subsequent iteration will ever cover. The 1st iteration's bitmap is radically different from all following ones — immediate instability.
+WinAFL instruments `fuzz_one_input` **after** `main()` returns. If `LoadLibraryA` is called inside `fuzz_one_input` during the **first instrumented iteration**, SteamService.exe's initialisation code (TLS callbacks, CRT global init, socket init, etc.) executes once and covers blocks that no subsequent iteration will ever cover. The 1st iteration's bitmap is radically different from all following ones - immediate instability.
 
 ### 6.4 Fix 1: Move Resolution to `main()`, Before Instrumentation
 
@@ -236,7 +236,7 @@ int main(int argc, char** argv) {
 
 `GetModuleHandleA` is tried first: if SteamService.exe is already mapped in the process, it has no side effects and does not trigger any init code. A pre-initialised global is a pure read with no branch in the hot loop, unlike a `static` local with an `if (!pfn)` guard.
 
-Everything with side effects belongs in `main()`, before it returns. `fuzz_one_input` must be as pure as possible — read input, initialise stack object, call, return.
+Everything with side effects belongs in `main()`, before it returns. `fuzz_one_input` must be as pure as possible - read input, initialise stack object, call, return.
 
 ### 6.5 Fix 2: Correct Calling Convention (`__fastcall` → `__thiscall`)
 
@@ -251,7 +251,7 @@ pfn((void*)&parser, 0, 0);  // 3 args
 IDA confirms the function is `__thiscall`: `this` passes via `ECX`, and additional arguments pass on the stack (not via `EDX`). With `__fastcall` and 3 args, a 0 is placed in `EDX`, which can corrupt callee-saved registers depending on the function's prologue.
 
 ```cpp
-// CORRECT: __thiscall — this via ECX, depth on the stack
+// CORRECT: __thiscall - this via ECX, depth on the stack
 typedef char (__thiscall *pfn_ParseVDF)(void* thisptr, int depth);
 g_pfn_parse((void*)&parser, 0);  // 2 args
 ```
@@ -260,7 +260,7 @@ Even minor stack corruption can alter the parser's behaviour on certain inputs, 
 
 ### 6.6 Fix 3: Correctly Implement `cb_onError`
 
-The error callback must write `1` at offset `+0x10` of the parser object — that is exactly what `sub_458320` does in SteamService.exe according to IDA. Without this, when the parser encounters a syntax error, it continues advancing through the buffer instead of stopping, leading to unpredictable behaviour.
+The error callback must write `1` at offset `+0x10` of the parser object - that is exactly what `sub_458320` does in SteamService.exe according to IDA. Without this, when the parser encounters a syntax error, it continues advancing through the buffer instead of stopping, leading to unpredictable behaviour.
 
 ```cpp
 // vtable[4] sub_458320: void __thiscall(_BYTE* this) { *(this+16) = 1; }
@@ -278,7 +278,7 @@ __declspec(noinline) __declspec(dllexport)
 int fuzz_one_input(const uint8_t* data, size_t size) { ... }
 ```
 
-Without `noinline`, the compiler may inline `fuzz_one_input` into `main()`. WinAFL locates the function by its offset in the PE (`-target_offset 0x1070`). If the function is inlined, that offset points into the middle of another function — WinAFL instruments the wrong entry point and produces incoherent results.
+Without `noinline`, the compiler may inline `fuzz_one_input` into `main()`. WinAFL locates the function by its offset in the PE (`-target_offset 0x1070`). If the function is inlined, that offset points into the middle of another function - WinAFL instruments the wrong entry point and produces incoherent results.
 
 ### 6.8 Static Size Assertion
 
@@ -287,7 +287,7 @@ static_assert(sizeof(VDFParser) == CUTLMEMORY_SIZE,
     "VDFParser must be exactly 36 bytes (CUtlMemory)");
 ```
 
-This costs nothing at runtime but eliminates an entire class of silent bugs: if IDA offsets are mis-transcribed and the struct is 32 or 40 bytes instead of 36, the parser writes `abort_flag` to the wrong offset — unpredictable behaviour on every iteration. The compiler refuses to build if the layout does not match.
+This costs nothing at runtime but eliminates an entire class of silent bugs: if IDA offsets are mis-transcribed and the struct is 32 or 40 bytes instead of 36, the parser writes `abort_flag` to the wrong offset - unpredictable behaviour on every iteration. The compiler refuses to build if the layout does not match.
 
 ### 6.9 Results
 
@@ -301,7 +301,7 @@ After applying all four fixes:
 
 The throughput gain (×4.6) comes from two factors:
 1. **Elimination of phantom new paths**: WinAFL no longer wastes time saving ghost inputs to the corpus.
-2. **Module resolution outside the loop**: `LoadLibraryA` carries non-trivial cost — calling it once in `main()` removes it entirely from the hot path.
+2. **Module resolution outside the loop**: `LoadLibraryA` carries non-trivial cost - calling it once in `main()` removes it entirely from the hot path.
 
 Stability and throughput are directly linked: an unstable harness generates false coverage signals, which forces AFL to explore non-existent paths, burning CPU cycles on noise. Fixing stability fixes throughput for free.
 
