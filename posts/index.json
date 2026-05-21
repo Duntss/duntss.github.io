@@ -22,5 +22,11 @@
     "description": "Why IDA shows STACK[offset] in LockBit 4.0 and how to fix stack deltas with an automated IDAPython workflow.",
     "file": "2026-02-03-fix-stack-frame-ida-lockbit.md",
     "tags": ["lockbit", "ransomware", "ida", "hex-rays", "idapython", "stack-frame", "reverse-engineering"]
+  },
+  {
+    "title": "From Reverse Engineering to Fuzzer in an Hour: Targeting SteamService's VDF Parser",
+    "description": "How to build a WinAFL harness from scratch by reverse engineering SteamService.exe's VDF parser in IDA — from struct reconstruction to 99% stability.",
+    "file": "2026-05-20-make-a-real-harness.md",
+    "tags": ["winafl", "fuzzing", "reverse-engineering", "ida", "steam", "vdf", "harness", "windows"]
   }
 ]
