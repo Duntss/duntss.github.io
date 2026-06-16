@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "title": "Flare Aimbot",
     "description": "Reverse engineering analysis of a fake Sauerbraten aimbot containing hidden malware and shellcode stages.",
@@ -25,8 +25,14 @@
   },
   {
     "title": "From Reverse Engineering to Fuzzer in an Hour: Targeting SteamService's VDF Parser",
-    "description": "How to build a WinAFL harness from scratch by reverse engineering SteamService.exe's VDF parser in IDA — from struct reconstruction to 99% stability.",
+    "description": "How to build a WinAFL harness from scratch by reverse engineering SteamService.exe's VDF parser in IDA - from struct reconstruction to 99% stability.",
     "file": "2026-05-20-make-a-real-harness.md",
     "tags": ["winafl", "fuzzing", "reverse-engineering", "ida", "steam", "vdf", "harness", "windows"]
+  },
+  {
+    "title": "The Client Keeps the Keys: A Session Password Flaw in Crusader Kings II",
+    "description": "How CK2 leaks its multiplayer session password hash to every joining client, enabling trivial GPU-accelerated cracking and session hijacking via Frida.",
+    "file": "2026-06-16-ck2-session-password-flaw.md",
+    "tags": ["game-hacking", "reverse-engineering", "ida", "frida", "md5", "authentication", "windows", "ck2"]
   }
 ]
