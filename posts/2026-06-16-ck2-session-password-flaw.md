@@ -2,7 +2,7 @@
 
 ![](./posts/image_ck2/Pasted%20image%2020260616100719.png)
 
-_Research made in collab with [Kylm](https://github.com/Kylm)_
+_Research made in collab with [0xkylm](https://github.com/0xkylm)_
 
 ---
 
